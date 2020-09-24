@@ -1,6 +1,8 @@
 import csv
+import uuid
 from datetime import datetime
 import pytz
+
 
 # pytz used to convert timestamp into aware datetime in python 2.7
 # aware time is what allows format to be changed into a different time zone with pytz
@@ -23,13 +25,19 @@ with open('database_dump.csv', mode='r') as csvfile:
             # print row[2]
 
             dt = datetime.fromtimestamp(float(row[2]), pytz.utc)    # pytz.utc used to make time "aware"
+            
+            # try america/belize
             time = dt.astimezone(pytz.timezone('US/Mountain'))      # Mountain time zone used to account for DST on Central Time
             times.append(time)
 
-with open('decrypted.csv', mode='w') as decrypted_file:
-    entries = csv.writer(decrypted_file, delimiter=',', quoting=csv.QUOTE_MINIMAL)
+# with open('decrypted.csv', mode='w') as decrypted_file:
+#     entries = csv.writer(decrypted_file, delimiter=',', quoting=csv.QUOTE_MINIMAL)
 
-    for n in range(len(names)):
-        entries.writerow(['John', '1234', times[n]])
+#     for n in range(len(names)):
+#         entries.writerow(['John', '1234', times[n]])
 
-        
+NAMESPACE = 'd9b2d63d-a233-4123-847a-76838bf2413a'
+
+print uuid.uuid5(NAMESPACE, "Laius")
+
+print passwords[2]
