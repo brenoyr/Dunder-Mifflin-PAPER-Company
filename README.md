@@ -1,1 +1,5 @@
-Branch for Breno Yamada Riquieri's programming assignments
+Paper group for CSC 443
+
+Testing push: Breno
+Testing push: Ayman
+Testing push: John
