@@ -39,30 +39,38 @@ f.close()
 # creating a dictionary/hash table in the form of uuid -> name:
 for name in names_list:
     # str(uuid) returns a string in the form 
-    # 12345678-1234-5678-1234-567812345678
+    # 12345678-1234-5678-1234-567812345678,
     # where the 32 hexadecimal digits represent the UUID
     namesDict[str(uuid.uuid5(NAMESPACE, name))] = name
 
-
-# for pw in password_list:
-#     password_uuid.append(sha256(pw).hexdigest())
-
+# creating a dictionary/hash table in the form of sha256 -> password:
+for pw in password_list:
+    # we were told passwords were encrypted 
+    # using a 64-chars hash, and SHA-256 worked.
+    # "upper()" because database dump feeds us all upper case chars
+    passwordDict[sha256(pw).hexdigest().upper()] = pw
 
 # ---------------- read database_dump.csv file ----------------
 forSkip = 0
 with open('database_dump.csv', mode='r') as csvfile:
     entries = csv.reader(csvfile, delimiter=',')
     for row in entries:
-        if forSkip == 0:
+        if forSkip == 0:    # skipping first row: "username,password,last_access"
             forSkip += 1
         else:
             # DECIPHERING:
 
             # names
-            names.append(namesDict[row[0]])     # having a hash table for names makes this operation faster
-            
+            try:
+                names.append(namesDict[row[0]])     # having a hash table for names makes this operation faster
+            except KeyError:
+                names.append("Unknown Name")
+
             # passwords
-            # passwordDump.append(row[1])
+            try:
+                passwords.append(passwordDict[row[1]])
+            except KeyError:
+                passwords.append("Unknown Password")
 
             # times
             dt = datetime.fromtimestamp(float(row[2]), pytz.utc)    # pytz.utc used to make time "aware"
@@ -75,4 +83,4 @@ with open('decrypted.csv', mode='w') as decrypted_file:
     entries.writerow(["username", "password", "last_access"])
 
     for n in range(len(names)):
-        entries.writerow([names[n], '1234', times[n]])
+        entries.writerow([names[n], passwords[n], times[n]])
