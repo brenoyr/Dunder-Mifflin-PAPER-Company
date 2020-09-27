@@ -1,5 +1,7 @@
-Paper group for CSC 443
+Paper group for CSC 443/CYEN 401
+Fall Quarter
 
-Testing push: Breno
-Testing push: Ayman
-Testing push: John
+Team members: Breno Yamada Riquieri
+              Ayman Dokwal
+              John Chung
+              Alexandra Duran Chicas
