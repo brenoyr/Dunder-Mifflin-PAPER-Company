@@ -1,6 +1,7 @@
 # partition table in MBR starts in byte 446
 from hashlib import sha256
 import sys
+import csv
 
 if len(sys.argv) < 2:
     print "Missing mode: -m for MBR, -g for GPT"
@@ -27,6 +28,14 @@ isoHash = sha256(isoFile).hexdigest()
 if isoHash != checksum:
     print ".iso hash does not match hash provided, exiting..."
     exit(-1)
+
+# putting partition types into a dictionary for easy access later
+partitionTypes = {}
+with open('mbr_partition_types.csv', mode='r') as csvfile:
+    entries = csv.reader(csvfile, delimiter=',')
+    for row in entries:
+        # hex -> partition type
+        partitionTypes[row[0]] = row[1]
 
 # entering .iso hex contents into a list
 hex_list = ["{:02x}".format(ord(c)) for c in isoFile]
