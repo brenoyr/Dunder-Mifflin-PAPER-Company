@@ -63,8 +63,14 @@ for i in range(partitionNumber):
     curPartitionType = partitionTypes[str(hex_list[cur + 4]).upper()]
     print "Partition Type: \"{}\"".format(curPartitionType)
 
+    # get partition address (LBA)
+    hexString = str(hex_list[cur+11]+hex_list[cur+10]+hex_list[cur+9]+hex_list[cur+8])
+    lbaDecAddress = int(hexString, 16)
+    print "Partition Address (LBA): {}".format(lbaDecAddress)
+
+    # get the size of the partition (in sectors)
+    hexString = str(hex_list[cur+15]+hex_list[cur+14]+hex_list[cur+13]+hex_list[cur+12])
+    sizeInSectors = int(hexString, 16)
+    print "Number of Sectors in Partition: {}\n".format(sizeInSectors)
+
     cur += 16
-    print
-
-# print partitionNumber
-
