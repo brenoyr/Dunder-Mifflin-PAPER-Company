@@ -9,28 +9,30 @@ if len(sys.argv) < 2:
 # assigning correct checksum and file directory based on mode (MBR or GPT)
 mode = sys.argv[1]
 if mode == "-m":
-    fileDir = 'mbr_dump.iso'
-    checksum = "a8a0e1dd8799459e6288b918d16b6efe2ef68809c7084f2dc968ec967d4574f3"
+    FILE_DIR = 'mbr_dump.iso'
+    PARTITION_TYPES_LIST = 'mbr_partition_types.csv'
+    CHECKSUM = "a8a0e1dd8799459e6288b918d16b6efe2ef68809c7084f2dc968ec967d4574f3"
 elif mode == "-g":
-    fileDir = 'gpt_dump.iso'
-    checksum = "5bf5860dfda9dd8cd13eb6d001c6667c43be34424bbf60bc62a722479c0bfb14"
+    FILE_DIR = 'gpt_dump.iso'
+    PARTITION_TYPES_LIST = 'gpt_partition_guids.csv'
+    CHECKSUM = "5bf5860dfda9dd8cd13eb6d001c6667c43be34424bbf60bc62a722479c0bfb14"
 else:
     print "Mode not supported, try \"-m\" for MBR, or \"-g\" for GPT"
     exit()
 
 # opening file and reading it to isoFile
-with open(fileDir, 'r') as f:
+with open(FILE_DIR, 'r') as f:
     isoFile = f.read()
 
 # checking integrity of .iso file
 isoHash = sha256(isoFile).hexdigest()
-if isoHash != checksum:
+if isoHash != CHECKSUM:
     print ".iso hash does not match hash provided, exiting..."
     exit(-1)
 
 # putting partition types into a dictionary for easy access later
 partitionTypes = {}
-with open('mbr_partition_types.csv', mode='r') as csvfile:
+with open(PARTITION_TYPES_LIST, mode='r') as csvfile:
     entries = csv.reader(csvfile, delimiter=',')
     for row in entries:
         # hex -> partition type
