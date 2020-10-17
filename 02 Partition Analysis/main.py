@@ -1,6 +1,6 @@
-# partition table in MBR starts in byte 446
 from hashlib import sha256
 import sys
+import csv
 
 if len(sys.argv) < 2:
     print "Missing mode: -m for MBR, -g for GPT"
@@ -28,7 +28,43 @@ if isoHash != checksum:
     print ".iso hash does not match hash provided, exiting..."
     exit(-1)
 
+# putting partition types into a dictionary for easy access later
+partitionTypes = {}
+with open('mbr_partition_types.csv', mode='r') as csvfile:
+    entries = csv.reader(csvfile, delimiter=',')
+    for row in entries:
+        # hex -> partition type
+        partitionTypes[row[0]] = row[1]
+
 # entering .iso hex contents into a list
 hex_list = ["{:02x}".format(ord(c)) for c in isoFile]
 
-# print len(hex_list)
+# "The MBR contains boot code, a partition table, and a signature value"
+# partition table in MBR starts in byte 446
+cur = 446
+
+# 1. Number of partitions
+partitionNumber = 0
+
+# getting number of partitions based on system indicator
+while hex_list[cur + 4] != "00":
+    partitionNumber += 1
+    cur = cur + 16
+
+# reset current pointer
+cur = 446
+
+print "Number of partitions: {}\n".format(partitionNumber)
+
+for i in range(partitionNumber):
+    print "Partition {} Details:".format(i + 1)\
+    
+    # get partition type
+    curPartitionType = partitionTypes[str(hex_list[cur + 4]).upper()]
+    print "Partition Type: \"{}\"".format(curPartitionType)
+
+    cur += 16
+    print
+
+# print partitionNumber
+
