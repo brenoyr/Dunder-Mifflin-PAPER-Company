@@ -1,7 +1,8 @@
 #########################################################
-#   Name:       Breno Yamada Riquieri                   #
+#   Names:      Breno Yamada Riquieri                   #
+#               Alexandra Duran Chicas                  #
 #   Class:      CSC443 - Digital Forensics              #
-#   Asgmt:      hashes, uuids, and timestamps           #
+#   Asgmt:      Partition Analysis                      #
 #   Due Date:   10/19/2020                              #
 #   Comments:   Python 2.7.17                           #
 #               Ubuntu 18.04.5 LTS                      #
@@ -10,6 +11,7 @@
 from hashlib import sha256
 import sys
 import csv
+
 
 def mbr():
     # "The MBR contains boot code, a partition table, and a signature value"
@@ -119,10 +121,10 @@ def fat32():
     reservedAreaSize = int(hex_list[15]+hex_list[14], 16)
 
     # get start address of 1st FAT
-    # reserved area is immediately followed by the 1st FAT section.
-    # sectors start at index 0. reserved area in sectors is 32 (for example),
-    # which means the last sector in the reserved area is the 31st.
-    # therefore, startAddress is 32 (right where reservedAreaSize ends)
+    # ** reserved area is immediately followed by the 1st FAT section.
+    # ** sectors start at index 0. reserved area in sectors is 32 (for example),
+    # ** which means the last sector in the reserved area is the 31st.
+    # ** therefore, startAddress is 32 (right where reservedAreaSize ends)
     startAddress = reservedAreaSize
 
     # get # of FATs
@@ -163,7 +165,7 @@ def fat32():
     # (as long as we are still in the same cluster (?))
     while cur < cluster * 2:
         if hex_list[cur] == "00":
-            print "Directory not found, exiting..."
+            print "\nDirectory not found, exiting...\n"
             exit()
 
         # translating first 8 bytes
@@ -187,9 +189,13 @@ def fat32():
     cur = cluster
 
     # same while loop as the one above, but for looking up the file name
+    # ** the while condition comes from assuming we are in the correct part of the drive.
+    # ** we could technically go through the entire drive searching for it,
+    # ** but I want it to stop at the end of the current cluster
+    # ** just to have a limitation
     while cur < cluster * 2:
         if hex_list[cur] == "00":
-            print "File not found, exiting..."
+            print "\nFile not found, exiting...\n"
             exit()
 
         # translating first 8 bytes
@@ -208,21 +214,22 @@ def fat32():
     # given by bytes 20-21 + 26-27 (in little endian)
     fileEntryAddr = int(hex_list[cur+21]+hex_list[cur+20]+hex_list[cur+27]+hex_list[cur+26], 16)
 
-    cur = dataSectionAddr * bytesPerSector
+    # get size of this file
+    # given by bytes 28-31
     sizeOfFile = int(hex_list[cur+31]+hex_list[cur+30]+hex_list[cur+29]+hex_list[cur+28], 16)
     
-    print sizeOfFile#############################################################################################
-
     # (starting sector on FAT section) * (byte offset from bytes per sector)
     fatTable = startAddress * bytesPerSector
 
-    # (starting file address) * 4
+    # go to the first file entry in the FAT table (starting file address * 4)
     offset = fatTable + (fileEntryAddr * 4)
 
     counter = 0
+    curCluster = hex_list[offset+3]+hex_list[offset+2]+hex_list[offset+1]+hex_list[offset]
     # if offset is not on an EOF, it gives you the next cluster in the chain (in little endian)
-    while hex_list[offset+3]+hex_list[offset+2]+hex_list[offset+1]+hex_list[offset] != "0fffffff":
-        offset += 4
+    while curCluster != "0fffffff":
+        offset = fatTable + (int(curCluster, 16) * 4)
+        curCluster = hex_list[offset+3]+hex_list[offset+2]+hex_list[offset+1]+hex_list[offset]
         counter += 1
     
     # now "counter" has the amount of clusters.
@@ -232,6 +239,7 @@ def fat32():
 
     print "Cluster Address of Directory Entry: {}".format(dirEntryAddr)
     print "Cluster Address of File Data: {}".format(fileEntryAddr)
+    print "Size of File in Bytes: {}".format(sizeOfFile)
     print "Ending Cluster Address of File: {}".format(endClusterAddr)
 
 
@@ -239,7 +247,7 @@ def fat32():
 # ---------------------------------- MAIN ---------------------------------- #
 # -------------------------------------------------------------------------- #
 if len(sys.argv) < 2:
-    print "Missing mode: -m for MBR, -g for GPT"
+    print "\nMissing mode:\n\"-m\" for MBR\n\"-g\" for GPT\n\"-f\" for FAT32\n\"-h\" for help\n"
     exit()
 
 # assigning correct checksum, file directory, and partition types list (if needed)
@@ -256,8 +264,13 @@ elif mode == "-g":
 elif mode == "-f":
     FILE_DIR = 'FAT_FS.iso'
     CHECKSUM = "04b608cd055d02da1d85b19cae97c91912d4a98bd2f7b17335fefdbcf0a34e2f"
+elif mode == "-h":
+    print "\nThis program retrieves some info from a .iso image that's present in the same directory as this .py file\n"
+    print "It supports the following modes:\n\"-m\" for MBR\n\"-g\" for GPT\n\"-f\" for FAT32\n"
+    print "For example, run MBR mode as \"python main.py -m\"\n"
+    exit()
 else:
-    print "Mode not supported, try \"-m\" for MBR, \"-g\" for GPT, or \"-f\" for FAT32"
+    print "\nMode not supported, try:\n\"-m\" for MBR\n\"-g\" for GPT\n\"-f\" for FAT32\n\"-h\" for help\n"
     exit()
 
 # opening file and reading it to isoFile
@@ -267,14 +280,14 @@ with open(FILE_DIR, 'r') as f:
 # checking integrity of .iso file
 isoHash = sha256(isoFile).hexdigest()
 if isoHash != CHECKSUM:
-    print ".iso hash does not match hash provided, exiting..."
-    exit(-1)
+    print "\n.iso hash does not match hash provided, exiting...\n"
+    exit()
 
 # entering .iso hex contents into a list
 hex_list = ["{:02x}".format(ord(c)) for c in isoFile]
 
 # putting partition types into a dictionary for easy access later
-# (no partition table for FAT32 part of this program)
+# (no partition table for the FAT32 part of this program)
 if mode == "-m" or mode == "-g":
     partitionTypes = {}
     with open(PARTITION_TYPES_LIST, mode='r') as csvfile:
