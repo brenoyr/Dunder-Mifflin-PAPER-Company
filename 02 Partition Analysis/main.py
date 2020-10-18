@@ -1,3 +1,12 @@
+#########################################################
+#   Name:       Breno Yamada Riquieri                   #
+#   Class:      CSC443 - Digital Forensics              #
+#   Asgmt:      hashes, uuids, and timestamps           #
+#   Due Date:   10/19/2020                              #
+#   Comments:   Python 2.7.17                           #
+#               Ubuntu 18.04.5 LTS                      #
+#########################################################
+
 from hashlib import sha256
 import sys
 import csv
@@ -11,31 +20,33 @@ def mbr():
     partitionNumber = 0
 
     # getting number of partitions based on system indicator
-    while hex_list[cur + 4] != "00":
+    while hex_list[cur+4] != "00":
         partitionNumber += 1
-        cur = cur + 16
+        cur += 16
 
     # reset current pointer
     cur = 446
+
     print "Number of partitions: {}\n".format(partitionNumber)
 
-    for i in range(partitionNumber):
-        print "Partition {} Details:".format(i + 1)\
-        
+    for i in range(partitionNumber):        
         # 2. get partition type
-        curPartitionType = partitionTypes[str(hex_list[cur + 4]).upper()]
-        print "Partition Type: \"{}\"".format(curPartitionType)
+        curPartitionType = partitionTypes[str(hex_list[cur+4]).upper()]
 
         # 3. get partition address (LBA)
         hexString = str(hex_list[cur+11]+hex_list[cur+10]+hex_list[cur+9]+hex_list[cur+8])
         lbaDecAddress = int(hexString, 16)
-        print "Partition Address (LBA): {}".format(lbaDecAddress)
 
         # 4. get the size of the partition (in sectors)
         hexString = str(hex_list[cur+15]+hex_list[cur+14]+hex_list[cur+13]+hex_list[cur+12])
         sizeInSectors = int(hexString, 16)
+
+        print "Partition {} Details:".format(i+1)
+        print "Partition Type: \"{}\"".format(curPartitionType)
+        print "Partition Address (LBA): {}".format(lbaDecAddress)
         print "Number of Sectors in Partition: {}\n".format(sizeInSectors)
 
+        # point to next partition
         cur += 16
 
 def gpt():
@@ -43,31 +54,58 @@ def gpt():
     # + 512 to get to partition entries table
     cur = 1024
 
-    # partition GUID starts at cur += 16 (16 bytes)
-    # we get very messy here
-    # first 8 bytes are in little endian
-    # last 8 bytes are in big endian
-    hexString = (hex_list[cur+3]+hex_list[cur+2]+hex_list[cur+1]+hex_list[cur]+"-"\
-        +hex_list[cur+5]+hex_list[cur+4]+"-"\
-        +hex_list[cur+7]+hex_list[cur+6]+"-"\
-        +hex_list[cur+8]+hex_list[cur+9]+"-"\
-        +hex_list[cur+10]+hex_list[cur+11]+hex_list[cur+12]+hex_list[cur+13]+hex_list[cur+14]+hex_list[cur+15]).upper()
+    partitionNumber = 0
 
-    print "Partition GUID: {}".format(hexString)
-    print "Partition Type: {}".format(partitionTypes[hexString])
+    # getting number of partitions based on
+    # how many partition entries exist every 128 bytes
+    while cur < len(hex_list) and hex_list[cur] != "00" :
+        partitionNumber += 1
+        cur += 128
 
-    # starting LBA address starts at cur += 32 (8 bytes)
-    hexString = ""
-    for i in range(cur+39, cur+31, -1):
-        hexString += str(hex_list[i])
-    lbaStartDecAddress = int(hexString, 16)
-    print "Partition Starting Address: {}".format(lbaStartDecAddress)
+    # reset current pointer
+    cur = 1024
 
-    # ending LBA address starts at cur += 40 (8 bytes)
-    hexString = str(hex_list[cur+47]+hex_list[cur+46]+hex_list[cur+45]+hex_list[cur+44]\
-        +hex_list[cur+43]+hex_list[cur+42]+hex_list[cur+41]+hex_list[cur+40])
-    lbaEndDecAddress = int(hexString, 16)
-    print "Partition Ending Address: {}".format(lbaEndDecAddress)
+    print "Number of partitions: {}\n".format(partitionNumber)
+
+    for i in range(partitionNumber):
+        # partition GUID starts at cur += 16 (16 bytes)
+        # we get very messy here
+        # first 8 bytes are in little endian
+        # last 8 bytes are in big endian
+        guid = (hex_list[cur+3]+hex_list[cur+2]+hex_list[cur+1]+hex_list[cur]+"-"\
+            +hex_list[cur+5]+hex_list[cur+4]+"-"\
+            +hex_list[cur+7]+hex_list[cur+6]+"-"\
+            +hex_list[cur+8]+hex_list[cur+9]+"-"\
+            +hex_list[cur+10]+hex_list[cur+11]+hex_list[cur+12]+hex_list[cur+13]+hex_list[cur+14]+hex_list[cur+15]).upper()
+
+        # starting LBA address starts at cur += 32 (8 bytes)
+        hexString = ""
+        for j in range(cur+39, cur+31, -1):
+            hexString += str(hex_list[j])
+        lbaStartDecAddress = int(hexString, 16)
+
+        # ending LBA address starts at cur += 40 (8 bytes)
+        hexString = str(hex_list[cur+47]+hex_list[cur+46]+hex_list[cur+45]+hex_list[cur+44]\
+            +hex_list[cur+43]+hex_list[cur+42]+hex_list[cur+41]+hex_list[cur+40])
+        lbaEndDecAddress = int(hexString, 16)
+
+        # name starts at byte cur+56
+        nameChar = cur+56
+        name = ""
+        while hex_list[nameChar] != "00":
+            name += hex_list[nameChar]
+            nameChar += 2
+        name = name.decode("hex")
+
+        cur += 128
+
+        print "Partition {} Details:".format(i+1)
+        print "Partition Name: {}".format(name)
+        print "Partition GUID: {}".format(guid)
+        print "Partition Type: {}".format(partitionTypes[guid])
+        print "Partition Starting Address: {}".format(lbaStartDecAddress)
+        print "Partition Ending Address: {}\n".format(lbaEndDecAddress)
+
 
 # --------------- MAIN --------------- #
 if len(sys.argv) < 2:
