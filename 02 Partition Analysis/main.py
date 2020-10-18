@@ -208,8 +208,31 @@ def fat32():
     # given by bytes 20-21 + 26-27 (in little endian)
     fileEntryAddr = int(hex_list[cur+21]+hex_list[cur+20]+hex_list[cur+27]+hex_list[cur+26], 16)
 
+    cur = dataSectionAddr * bytesPerSector
+    sizeOfFile = int(hex_list[cur+31]+hex_list[cur+30]+hex_list[cur+29]+hex_list[cur+28], 16)
+    
+    print sizeOfFile#############################################################################################
+
+    # (starting sector on FAT section) * (byte offset from bytes per sector)
+    fatTable = startAddress * bytesPerSector
+
+    # (starting file address) * 4
+    offset = fatTable + (fileEntryAddr * 4)
+
+    counter = 0
+    # if offset is not on an EOF, it gives you the next cluster in the chain (in little endian)
+    while hex_list[offset+3]+hex_list[offset+2]+hex_list[offset+1]+hex_list[offset] != "0fffffff":
+        offset += 4
+        counter += 1
+    
+    # now "counter" has the amount of clusters.
+    # each cluster has an offset of 4
+    # therefore, ending cluster address of file is:
+    endClusterAddr = counter + 4 + 1
+
     print "Cluster Address of Directory Entry: {}".format(dirEntryAddr)
     print "Cluster Address of File Data: {}".format(fileEntryAddr)
+    print "Ending Cluster Address of File: {}".format(endClusterAddr)
 
 
 # -------------------------------------------------------------------------- #
