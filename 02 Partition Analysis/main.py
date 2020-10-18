@@ -119,15 +119,45 @@ def fat32():
     # get size of reserved area in sectors
     reservedAreaSize = int(hex_list[15]+hex_list[14], 16)
 
+    # get start address of 1st FAT
+    # reserved area is immediately followed by the 1st FAT section.
+    # sectors start at index 0. reserved area in sectors is 32 (for example),
+    # which means the last sector in the reserved area is the 31st.
+    # therefore, startAddress is 32 (right where reservedAreaSize ends)
+    startAddress = reservedAreaSize
+
     # get # of FATs
     # given by byte 16
     numOfFats = int(hex_list[16], 16)
+
+    # get sectors per FAT
+    # given by bytes 36-39 (in little endian)
+    sectorsPerFAT = int(hex_list[39]+hex_list[38]+hex_list[37]+hex_list[36], 16)
+
+    # get cluster address of root directory
+    # given by bytes 44-47 (in little endian)
+    clusterAddrRoot = int(hex_list[47]+hex_list[46]+hex_list[45]+hex_list[44], 16)
+
+    # get starting sector address of the data section a.k.a. root directory
+    # (size in sectors of each fat)(# of fats) + # of sectors in reserved area
+    dataSectionAddr = (sectorsPerFAT * numOfFats) + reservedAreaSize
+
+    # THE FUN STARTS HERE
+    # get cluster address of directory entry
+    cur = dataSectionAddr * bytesPerSector
+    print hex_list[cur]
 
 
     print "Bytes/Sector: {}".format(bytesPerSector)
     print "Sectors/Cluster: {}".format(sectorsPerCluster)
     print "Size of Reserved Area in Sectors: {}".format(reservedAreaSize)
+    print "Start Address of 1st FAT: {}".format(startAddress)
     print "# of FATs: {}".format(numOfFats)
+    print "Sectors/FAT: {}".format(sectorsPerFAT)
+    print "Cluster Address of Root Directory: {}".format(clusterAddrRoot)
+    print "Starting Sector Address of the Data Section: {}".format(dataSectionAddr)
+    # print "Cluster Address of Directory Entry: {}".format(dirEntryAddr)
+
 
 
 
@@ -139,7 +169,8 @@ if len(sys.argv) < 2:
     print "Missing mode: -m for MBR, -g for GPT"
     exit()
 
-# assigning correct checksum and file directory based on mode (MBR, GPT, or FAT32)
+# assigning correct checksum, file directory, and partition types list (if needed)
+# based on mode (MBR, GPT, or FAT32)
 mode = sys.argv[1]
 if mode == "-m":
     FILE_DIR = 'mbr_dump.iso'
@@ -170,6 +201,7 @@ if isoHash != CHECKSUM:
 hex_list = ["{:02x}".format(ord(c)) for c in isoFile]
 
 # putting partition types into a dictionary for easy access later
+# (no partition table for FAT32 part of this program)
 if mode == "-m" or mode == "-g":
     partitionTypes = {}
     with open(PARTITION_TYPES_LIST, mode='r') as csvfile:
