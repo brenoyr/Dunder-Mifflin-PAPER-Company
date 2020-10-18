@@ -107,7 +107,6 @@ def gpt():
         print "Partition Ending Address: {}\n".format(lbaEndDecAddress)
 
 def fat32():
-
     # get bytes per sector
     # given by bytes 11-12 (in little endian) from the FAT boot sector
     bytesPerSector = int(hex_list[12]+hex_list[11], 16)
@@ -142,12 +141,6 @@ def fat32():
     # (size in sectors of each fat)(# of fats) + # of sectors in reserved area
     dataSectionAddr = (sectorsPerFAT * numOfFats) + reservedAreaSize
 
-    # THE FUN STARTS HERE
-    # get cluster address of directory entry
-    cur = dataSectionAddr * bytesPerSector
-    print hex_list[cur]
-
-
     print "Bytes/Sector: {}".format(bytesPerSector)
     print "Sectors/Cluster: {}".format(sectorsPerCluster)
     print "Size of Reserved Area in Sectors: {}".format(reservedAreaSize)
@@ -156,10 +149,67 @@ def fat32():
     print "Sectors/FAT: {}".format(sectorsPerFAT)
     print "Cluster Address of Root Directory: {}".format(clusterAddrRoot)
     print "Starting Sector Address of the Data Section: {}".format(dataSectionAddr)
-    # print "Cluster Address of Directory Entry: {}".format(dirEntryAddr)
 
+    # THE FUN STARTS HERE
+    # LOOKING FOR "/Photos/homework.jpg"
+    DIRECTORY = "Photos"
+    FILE = "homework"
 
+    # go to root's first entry
+    cluster = (dataSectionAddr * bytesPerSector) + 32
+    cur = cluster
 
+    # this while loop goes to the next entry if name doesn't match
+    # (as long as we are still in the same cluster (?))
+    while cur < cluster * 2:
+        if hex_list[cur] == "00":
+            print "Directory not found, exiting..."
+            exit()
+
+        # translating first 8 bytes
+        fileName = hex_list[cur]+hex_list[cur+1]+hex_list[cur+2]+hex_list[cur+3]\
+            +hex_list[cur+4]+hex_list[cur+5]+hex_list[cur+6]+hex_list[cur+7]
+        fileName = fileName.decode("hex")
+
+        # "is the directory name a substring of those 8 bytes?"
+        if DIRECTORY.upper() not in fileName:
+            cur += 32
+        else:
+            # if it is, we found it. proceed...
+            break
+    
+    # get cluster address of directory entry
+    # given by bytes 20-21 + 26-27 (in little endian)
+    dirEntryAddr = int(hex_list[cur+21]+hex_list[cur+20]+hex_list[cur+27]+hex_list[cur+26], 16)
+    
+    # contiguous, so next cluster is 512 down
+    cluster += 512
+    cur = cluster
+
+    # same while loop as the one above, but for looking up the file name
+    while cur < cluster * 2:
+        if hex_list[cur] == "00":
+            print "File not found, exiting..."
+            exit()
+
+        # translating first 8 bytes
+        fileName = hex_list[cur]+hex_list[cur+1]+hex_list[cur+2]+hex_list[cur+3]\
+            +hex_list[cur+4]+hex_list[cur+5]+hex_list[cur+6]+hex_list[cur+7]
+        fileName = fileName.decode("hex")
+
+        # "is the directory name" a substring of those 8 bytes?
+        if FILE.upper() not in fileName:
+            cur += 32
+        else:
+            # if it is, we found it. proceed...
+            break
+
+    # get cluster address of file data
+    # given by bytes 20-21 + 26-27 (in little endian)
+    fileEntryAddr = int(hex_list[cur+21]+hex_list[cur+20]+hex_list[cur+27]+hex_list[cur+26], 16)
+
+    print "Cluster Address of Directory Entry: {}".format(dirEntryAddr)
+    print "Cluster Address of File Data: {}".format(fileEntryAddr)
 
 
 # -------------------------------------------------------------------------- #
