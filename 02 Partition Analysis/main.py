@@ -106,13 +106,40 @@ def gpt():
         print "Partition Starting Address: {}".format(lbaStartDecAddress)
         print "Partition Ending Address: {}\n".format(lbaEndDecAddress)
 
+def fat32():
 
-# --------------- MAIN --------------- #
+    # get bytes per sector
+    # given by bytes 11-12 (in little endian) from the FAT boot sector
+    bytesPerSector = int(hex_list[12]+hex_list[11], 16)
+
+    # get sectors per cluster
+    # given by byte 13
+    sectorsPerCluster = int(hex_list[13], 16)
+
+    # get size of reserved area in sectors
+    reservedAreaSize = int(hex_list[15]+hex_list[14], 16)
+
+    # get # of FATs
+    # given by byte 16
+    numOfFats = int(hex_list[16], 16)
+
+
+    print "Bytes/Sector: {}".format(bytesPerSector)
+    print "Sectors/Cluster: {}".format(sectorsPerCluster)
+    print "Size of Reserved Area in Sectors: {}".format(reservedAreaSize)
+    print "# of FATs: {}".format(numOfFats)
+
+
+
+
+# -------------------------------------------------------------------------- #
+# ---------------------------------- MAIN ---------------------------------- #
+# -------------------------------------------------------------------------- #
 if len(sys.argv) < 2:
     print "Missing mode: -m for MBR, -g for GPT"
     exit()
 
-# assigning correct checksum and file directory based on mode (MBR or GPT)
+# assigning correct checksum and file directory based on mode (MBR, GPT, or FAT32)
 mode = sys.argv[1]
 if mode == "-m":
     FILE_DIR = 'mbr_dump.iso'
@@ -122,8 +149,11 @@ elif mode == "-g":
     FILE_DIR = 'gpt_dump.iso'
     PARTITION_TYPES_LIST = 'gpt_partition_guids.csv'
     CHECKSUM = "5bf5860dfda9dd8cd13eb6d001c6667c43be34424bbf60bc62a722479c0bfb14"
+elif mode == "-f":
+    FILE_DIR = 'FAT_FS.iso'
+    CHECKSUM = "04b608cd055d02da1d85b19cae97c91912d4a98bd2f7b17335fefdbcf0a34e2f"
 else:
-    print "Mode not supported, try \"-m\" for MBR, or \"-g\" for GPT"
+    print "Mode not supported, try \"-m\" for MBR, \"-g\" for GPT, or \"-f\" for FAT32"
     exit()
 
 # opening file and reading it to isoFile
@@ -140,20 +170,22 @@ if isoHash != CHECKSUM:
 hex_list = ["{:02x}".format(ord(c)) for c in isoFile]
 
 # putting partition types into a dictionary for easy access later
-partitionTypes = {}
-with open(PARTITION_TYPES_LIST, mode='r') as csvfile:
-    entries = csv.reader(csvfile, delimiter=',')
-    if mode == "-m":
-        for row in entries:
-            # hex -> partition type
-            partitionTypes[row[0]] = row[1]
-    # mode == "-g":
-    else:
-        for row in entries:
-            partitionTypes[row[0]] = "{} - \"{}\"".format(row[1], row[2])
-
+if mode == "-m" or mode == "-g":
+    partitionTypes = {}
+    with open(PARTITION_TYPES_LIST, mode='r') as csvfile:
+        entries = csv.reader(csvfile, delimiter=',')
+        if mode == "-m":
+            for row in entries:
+                # hex -> partition type
+                partitionTypes[row[0]] = row[1]
+        # mode == "-g":
+        else:
+            for row in entries:
+                partitionTypes[row[0]] = "{} - \"{}\"".format(row[1], row[2])
 
 if mode == "-m":
     mbr()
-else:
+elif mode == "-g":
     gpt()
+elif mode == "-f":
+    fat32()
