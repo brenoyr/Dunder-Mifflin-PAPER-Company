@@ -224,12 +224,17 @@ def fat32():
     # go to the first file entry in the FAT table (starting file address * 4)
     offset = fatTable + (fileEntryAddr * 4)
 
+    # keeping a count of cluster addresses, as well as a list of those addresses
+    # for possible future reference (as recommended by the instructor)
     counter = 0
     curCluster = hex_list[offset+3]+hex_list[offset+2]+hex_list[offset+1]+hex_list[offset]
-    # if offset is not on an EOF, it gives you the next cluster in the chain (in little endian)
+    cluster_addr_list = [curCluster]
+    
+    # if offset is not on an EOF, it gives you the next cluster address in the chain (in little endian)
     while curCluster != "0fffffff":
-        offset = fatTable + (int(curCluster, 16) * 4)
+        offset = fatTable + (int(curCluster, 16) * 4)   # jump to the next address pointed by the table
         curCluster = hex_list[offset+3]+hex_list[offset+2]+hex_list[offset+1]+hex_list[offset]
+        cluster_addr_list.append(curCluster)
         counter += 1
     
     # now "counter" has the amount of clusters.
