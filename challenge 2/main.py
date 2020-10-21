@@ -2,8 +2,8 @@
 #   Names:      Breno Yamada Riquieri                   #
 #               Alexandra Duran Chicas                  #
 #   Class:      CSC443 - Digital Forensics              #
-#   Asgmt:      Partition Analysis                      #
-#   Due Date:   10/19/2020                              #
+#   Asgmt:      Challenge 2                             #
+#   Due Date:   10/21/2020                              #
 #   Comments:   Python 2.7.17                           #
 #               Ubuntu 18.04.5 LTS                      #
 #########################################################
@@ -157,7 +157,6 @@ def fat32():
     print "Starting Sector Address of the Data Section: {}".format(dataSectionAddr)
 
     # THE FUN STARTS HERE
-    # LOOKING FOR "/Photos/homework.jpg"
     DIRECTORY = "Norway"
     FILE = "norway"
 
@@ -182,7 +181,6 @@ def fat32():
         if DIRECTORY.upper() not in fileName:
             cur += 32
         else:
-            print "DIRECTORY BYTES IN DECIMAL: {}".format(fileName) # added
             # if it is, we found it. proceed...
             break
     
@@ -194,43 +192,30 @@ def fat32():
     # contiguous, so next cluster is 512 down
     cluster += 512
     cur = cluster
-
-    # for i in range(15):
-    # same while loop as the one above, but for looking up the file name
-    # ** the while condition comes from assuming we are in the correct part of the drive.
-    # ** we could technically go through the entire drive searching for it,
-    # ** but I want it to stop at the end of the current cluster
-    # ** just to have a limitation
-    # print "\n\n File #{}:\n".format(i)
     file_hex_addresses = []
     file_names_hex_to_dec = []
+
+    # same while loop as the one above, but for looking up the file name
+    # ** the while condition comes from assuming we are in the correct part of the drive.
+    # ** we could technically go through the entire drive searching for it if that's the case
     for i in range(13):
+        print "\nFile {} info:".format(i+1)
         while True:
-            if hex_list[cur] == "00":
-                print "\nFile not found, exiting...\n"
-                exit()
-
-            # translating first 8 bytes
-            fileName = hex_list[cur]+hex_list[cur+1]+hex_list[cur+2]+hex_list[cur+3]\
-                +hex_list[cur+4]+hex_list[cur+5]+hex_list[cur+6]+hex_list[cur+7]
-            # print "FILE BYTES IN HEX: {}".format(fileName)
-
+            # check the file name bytes
+            fileName = hex_list[cur+32]+hex_list[cur+33]+hex_list[cur+34]+hex_list[cur+35]\
+                +hex_list[cur+36]+hex_list[cur+37]+hex_list[cur+38]+hex_list[cur+39]\
+                +hex_list[cur+40]+hex_list[cur+41]+hex_list[cur+42]
+            
             fileName = fileName.decode("hex")
-            # print "FILE BYTES IN DECIMAL: {}".format(fileName)
 
             # "is the directory name" a substring of those 8 bytes?
             if FILE.upper() not in fileName:
                 cur += 32
             else:
                 # if it is, we found it. proceed...
-                # print "BYTE VALUE MAYBE: {}".format(cur)
-                cur += 64   # added
-                file_hex_addresses.append(cur)
-                file_names_hex_to_dec.append(fileName)
+                print "Found file name: {}".format(fileName)
+                cur += 32   # added
                 break
-
-        # print file_hex_addresses  # added
-        # print file_names_hex_to_dec   # added
 
         # get cluster address of file data
         # given by bytes 20-21 + 26-27 (in little endian)
@@ -254,26 +239,20 @@ def fat32():
         
         # if offset is not on an EOF, it gives you the next cluster address in the chain (in little endian)
         while curCluster != "0fffffff":
+            # cluster address that has this is the last address
             offset = fatTable + (int(curCluster, 16) * 4)   # jump to the next address pointed by the table
             curCluster = hex_list[offset+3]+hex_list[offset+2]+hex_list[offset+1]+hex_list[offset]
-            cluster_addr_list.append(curCluster)
+            cluster_addr_list.append(curCluster+"\n")
             counter += 1
-        
-        # print "\n\nCLUSTER ADDRESSES: {}\n\n".format(cluster_addr_list)
         
         # now "counter" has the amount of clusters.
         # each cluster has an offset of 4
         # therefore, ending cluster address of file is:
         endClusterAddr = counter + 4 + 1
 
-        # print "Cluster Address of Directory Entry: {}".format(dirEntryAddr+32505856)
-        # print "Cluster Address of File Data: {}".format(fileEntryAddr+32505856)
-        # print "Size of File in Bytes: {}".format(sizeOfFile)
-        # print "Ending Cluster Address of File: {}".format(endClusterAddr+32505856)
         print "Cluster Address of File Data: {}".format(fileEntryAddr)
         print "Size of File in Bytes: {}".format(sizeOfFile)
         print "Ending Cluster Address of File: {}".format(endClusterAddr)
-    print len(cluster_addr_list)
 
 # -------------------------------------------------------------------------- #
 # ---------------------------------- MAIN ---------------------------------- #
@@ -288,14 +267,14 @@ mode = sys.argv[1]
 if mode == "-m":
     FILE_DIR = 'challenge _2_dump.iso'
     PARTITION_TYPES_LIST = 'mbr_partition_types.csv'
-    # CHECKSUM = "a8a0e1dd8799459e6288b918d16b6efe2ef68809c7084f2dc968ec967d4574f3"
+    CHECKSUM = "fb5be676981294ad1b2f90a6bdecd1e8960660ae5209682faf3024d7ccce37d7"
 elif mode == "-g":
     FILE_DIR = 'challenge _2_dump.iso'
     PARTITION_TYPES_LIST = 'gpt_partition_guids.csv'
-    # CHECKSUM = "5bf5860dfda9dd8cd13eb6d001c6667c43be34424bbf60bc62a722479c0bfb14"
+    CHECKSUM = "fb5be676981294ad1b2f90a6bdecd1e8960660ae5209682faf3024d7ccce37d7"
 elif mode == "-f":
     FILE_DIR = 'challenge _2_dump.iso'
-    # CHECKSUM = "04b608cd055d02da1d85b19cae97c91912d4a98bd2f7b17335fefdbcf0a34e2f"
+    CHECKSUM = "fb5be676981294ad1b2f90a6bdecd1e8960660ae5209682faf3024d7ccce37d7"
 elif mode == "-h":
     print "\nThis program retrieves some info from a .iso image that's present in the same directory as this .py file\n"
     print "It supports the following modes:\n\"-m\" for MBR\n\"-g\" for GPT\n\"-f\" for FAT32\n"
@@ -310,17 +289,14 @@ with open(FILE_DIR, 'r') as f:
     isoFile = f.read()
 
 # checking integrity of .iso file
-# isoHash = sha256(isoFile).hexdigest()
-# if isoHash != CHECKSUM:
-#     print "\n.iso hash does not match hash provided, exiting...\n"
-#     exit()
+isoHash = sha256(isoFile).hexdigest()
+if isoHash != CHECKSUM:
+    print "\n.iso hash does not match hash provided, exiting...\n"
+    exit()
 
 # entering .iso hex contents into a list
 hex_list = ["{:02x}".format(ord(c)) for c in isoFile]
 hex_list = hex_list[32505856:]
-
-# len is 69205504
-# hex_list = hex_list[]
 
 # putting partition types into a dictionary for easy access later
 # (no partition table for the FAT32 part of this program)
