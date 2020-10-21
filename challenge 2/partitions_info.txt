@@ -1,0 +1,121 @@
+Number of partitions: 17
+
+Partition 1 Details:
+Partition Name: 7
+Partition GUID: 0FC63DAF-8483-4772-8E79-3D69D8477DE4
+Partition Type: linux - "Linux filesystem data"
+Partition Starting Address: 2048
+Partition Ending Address: 4095
+
+Partition 2 Details:
+Partition Name: 13
+Partition GUID: 0FC63DAF-8483-4772-8E79-3D69D8477DE4
+Partition Type: linux - "Linux filesystem data"
+Partition Starting Address: 4096
+Partition Ending Address: 6143
+
+Partition 3 Details:
+Partition Name: 4
+Partition GUID: 0FC63DAF-8483-4772-8E79-3D69D8477DE4
+Partition Type: linux - "Linux filesystem data"
+Partition Starting Address: 6144
+Partition Ending Address: 8191
+
+Partition 4 Details:
+Partition Name: 9
+Partition GUID: 0FC63DAF-8483-4772-8E79-3D69D8477DE4
+Partition Type: linux - "Linux filesystem data"
+Partition Starting Address: 8192
+Partition Ending Address: 10239
+
+Partition 5 Details:
+Partition Name: 5
+Partition GUID: 0FC63DAF-8483-4772-8E79-3D69D8477DE4
+Partition Type: linux - "Linux filesystem data"
+Partition Starting Address: 10240
+Partition Ending Address: 12287
+
+Partition 6 Details:
+Partition Name: 1
+Partition GUID: 0FC63DAF-8483-4772-8E79-3D69D8477DE4
+Partition Type: linux - "Linux filesystem data"
+Partition Starting Address: 12288
+Partition Ending Address: 14335
+
+Partition 7 Details:
+Partition Name: N
+Partition GUID: EBD0A0A2-B9E5-4433-87C0-68B6B72699C7
+Partition Type: windows - "Basic data partition"
+Partition Starting Address: 14336
+Partition Ending Address: 18431
+
+Partition 8 Details:
+Partition Name: 12
+Partition GUID: 0FC63DAF-8483-4772-8E79-3D69D8477DE4
+Partition Type: linux - "Linux filesystem data"
+Partition Starting Address: 18432
+Partition Ending Address: 20479
+
+Partition 9 Details:
+Partition Name: Four
+Partition GUID: EBD0A0A2-B9E5-4433-87C0-68B6B72699C7
+Partition Type: windows - "Basic data partition"
+Partition Starting Address: 20480
+Partition Ending Address: 53247
+
+Partition 10 Details:
+Partition Name: 20
+Partition GUID: 0FC63DAF-8483-4772-8E79-3D69D8477DE4
+Partition Type: linux - "Linux filesystem data"
+Partition Starting Address: 53248
+Partition Ending Address: 55295
+
+Partition 11 Details:
+Partition Name: 91
+Partition GUID: 0FC63DAF-8483-4772-8E79-3D69D8477DE4
+Partition Type: linux - "Linux filesystem data"
+Partition Starting Address: 55296
+Partition Ending Address: 57343
+
+Partition 12 Details:
+Partition Name: 23
+Partition GUID: 0FC63DAF-8483-4772-8E79-3D69D8477DE4
+Partition Type: linux - "Linux filesystem data"
+Partition Starting Address: 57344
+Partition Ending Address: 59391
+
+Partition 13 Details:
+Partition Name: 11
+Partition GUID: 0FC63DAF-8483-4772-8E79-3D69D8477DE4
+Partition Type: linux - "Linux filesystem data"
+Partition Starting Address: 59392
+Partition Ending Address: 61439
+
+Partition 14 Details:
+Partition Name: 6
+Partition GUID: 0FC63DAF-8483-4772-8E79-3D69D8477DE4
+Partition Type: linux - "Linux filesystem data"
+Partition Starting Address: 61440
+Partition Ending Address: 63487
+
+Partition 15 Details:
+Partition Name: K
+Partition GUID: EBD0A0A2-B9E5-4433-87C0-68B6B72699C7
+Partition Type: windows - "Basic data partition"
+Partition Starting Address: 63488
+Partition Ending Address: 131071
+
+Partition 16 Details:
+Partition Name: 17
+Partition GUID: 0FC63DAF-8483-4772-8E79-3D69D8477DE4
+Partition Type: linux - "Linux filesystem data"
+Partition Starting Address: 131072
+Partition Ending Address: 133119
+
+Partition 17 Details:
+Partition Name: 35
+Partition GUID: 0FC63DAF-8483-4772-8E79-3D69D8477DE4
+Partition Type: linux - "Linux filesystem data"
+Partition Starting Address: 133120
+Partition Ending Address: 135167
+

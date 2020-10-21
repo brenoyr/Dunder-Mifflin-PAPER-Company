@@ -1,0 +1,87 @@
+Bytes/Sector: 512
+Sectors/Cluster: 1
+Size of Reserved Area in Sectors: 32
+Start Address of 1st FAT: 32
+# of FATs: 2
+Sectors/FAT: 520
+Cluster Address of Root Directory: 2
+Starting Sector Address of the Data Section: 1072
+Cluster Address of Directory Entry: 3
+
+File 1 info:
+Found file name: NORWAY1 JPG
+Cluster Address of File Data: 31007
+Size of File in Bytes: 430399
+Ending Cluster Address of File: 845
+
+File 2 info:
+Found file name: NORWAY2 JPG
+Cluster Address of File Data: 31848
+Size of File in Bytes: 128659
+Ending Cluster Address of File: 256
+
+File 3 info:
+Found file name: NORWAY3 JPG
+Cluster Address of File Data: 32100
+Size of File in Bytes: 782131
+Ending Cluster Address of File: 1532
+
+File 4 info:
+Found file name: NORWAY4 JPG
+Cluster Address of File Data: 33628
+Size of File in Bytes: 597311
+Ending Cluster Address of File: 1171
+
+File 5 info:
+Found file name: NORWAY5 JPG
+Cluster Address of File Data: 34795
+Size of File in Bytes: 383039
+Ending Cluster Address of File: 753
+
+File 6 info:
+Found file name: NORWAY6 JPG
+Cluster Address of File Data: 35544
+Size of File in Bytes: 141153
+Ending Cluster Address of File: 280
+
+File 7 info:
+Found file name: NORWAY7 JPG
+Cluster Address of File Data: 35820
+Size of File in Bytes: 270004
+Ending Cluster Address of File: 532
+
+File 8 info:
+Found file name: NORWAY8 JPG
+Cluster Address of File Data: 36349
+Size of File in Bytes: 437229
+Ending Cluster Address of File: 858
+
+File 9 info:
+Found file name: NORWAY9 JPG
+Cluster Address of File Data: 37203
+Size of File in Bytes: 2380320
+Ending Cluster Address of File: 4654
+
+File 10 info:
+Found file name: NORWAY10JPG
+Cluster Address of File Data: 41853
+Size of File in Bytes: 900950
+Ending Cluster Address of File: 1764
+
+File 11 info:
+Found file name: NORWAY11JPG
+Cluster Address of File Data: 43613
+Size of File in Bytes: 1173479
+Ending Cluster Address of File: 2296
+
+File 12 info:
+Found file name: NORWAY12JPG
+Cluster Address of File Data: 45905
+Size of File in Bytes: 1020527
+Ending Cluster Address of File: 1998
+
+File 13 info:
+Found file name: NORWAY13JPG
+Cluster Address of File Data: 47899
+Size of File in Bytes: 118334
+Ending Cluster Address of File: 236
