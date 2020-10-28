@@ -1,0 +1,268 @@
+Bytes/Sector: 512
+Sectors/Cluster: 1
+Size of Reserved Area in Sectors: 32
+Start Address of 1st FAT: 32
+# of FATs: 2
+Sectors/FAT: 520
+Cluster Address of Root Directory: 2
+Starting Sector Address of the Data Section: 1072
+
+Number of "FFD8FF" tags found: 43
+
+File 1:
+Starting address: 553984
+Starting sector: 10
+Cluster address = Sectors passed + 2: 12
+File 1 deleted/overwritten
+
+File 2:
+Starting address: 899072
+Starting sector: 684
+Cluster address = Sectors passed + 2: 686
+File 2 deleted/overwritten
+
+File 3:
+Starting address: 1522688
+Starting sector: 1902
+Cluster address = Sectors passed + 2: 1904
+File 3 deleted/overwritten
+
+File 4:
+Starting address: 1903616
+Starting sector: 2646
+Cluster address = Sectors passed + 2: 2648
+File 4 deleted/overwritten
+
+File 5:
+Starting address: 2019840
+Starting sector: 2873
+Cluster address = Sectors passed + 2: 2875
+Ending Cluster Address of File: 1095
+
+File 6:
+Starting address: 2578432
+Starting sector: 3964
+Cluster address = Sectors passed + 2: 3966
+Ending Cluster Address of File: 1502
+
+File 7:
+Starting address: 3345408
+Starting sector: 5462
+Cluster address = Sectors passed + 2: 5464
+Ending Cluster Address of File: 1741
+
+File 8:
+Starting address: 4234752
+Starting sector: 7199
+Cluster address = Sectors passed + 2: 7201
+Ending Cluster Address of File: 696
+
+File 9:
+Starting address: 4589056
+Starting sector: 7891
+Cluster address = Sectors passed + 2: 7893
+File 9 deleted/overwritten
+
+File 10:
+Starting address: 6723072
+Starting sector: 12059
+Cluster address = Sectors passed + 2: 12061
+File 10 deleted/overwritten
+
+File 11:
+Starting address: 7299072
+Starting sector: 13184
+Cluster address = Sectors passed + 2: 13186
+File 11 deleted/overwritten
+
+File 12:
+Starting address: 8566784
+Starting sector: 15660
+Cluster address = Sectors passed + 2: 15662
+File 12 deleted/overwritten
+
+File 13:
+Starting address: 8794112
+Starting sector: 16104
+Cluster address = Sectors passed + 2: 16106
+Ending Cluster Address of File: 508
+
+File 14:
+Starting address: 9577984
+Starting sector: 17635
+Cluster address = Sectors passed + 2: 17637
+Ending Cluster Address of File: 1064
+
+File 15:
+Starting address: 10120704
+Starting sector: 18695
+Cluster address = Sectors passed + 2: 18697
+Ending Cluster Address of File: 512
+
+File 16:
+Starting address: 10381312
+Starting sector: 19204
+Cluster address = Sectors passed + 2: 19206
+Ending Cluster Address of File: 2673
+
+File 17:
+Starting address: 11747840
+Starting sector: 21873
+Cluster address = Sectors passed + 2: 21875
+Ending Cluster Address of File: 596
+
+File 18:
+Starting address: 12050944
+Starting sector: 22465
+Cluster address = Sectors passed + 2: 22467
+Ending Cluster Address of File: 491
+
+File 19:
+Starting address: 12300288
+Starting sector: 22952
+Cluster address = Sectors passed + 2: 22954
+Ending Cluster Address of File: 533
+
+File 20:
+Starting address: 12571136
+Starting sector: 23481
+Cluster address = Sectors passed + 2: 23483
+Ending Cluster Address of File: 94
+
+File 21:
+Starting address: 12617216
+Starting sector: 23571
+Cluster address = Sectors passed + 2: 23573
+Ending Cluster Address of File: 71
+
+File 22:
+Starting address: 12651520
+Starting sector: 23638
+Cluster address = Sectors passed + 2: 23640
+Ending Cluster Address of File: 602
+
+File 23:
+Starting address: 12957696
+Starting sector: 24236
+Cluster address = Sectors passed + 2: 24238
+Ending Cluster Address of File: 435
+
+File 24:
+Starting address: 13178368
+Starting sector: 24667
+Cluster address = Sectors passed + 2: 24669
+Ending Cluster Address of File: 489
+
+File 25:
+Starting address: 13426688
+Starting sector: 25152
+Cluster address = Sectors passed + 2: 25154
+Ending Cluster Address of File: 458
+
+File 26:
+Starting address: 13659136
+Starting sector: 25606
+Cluster address = Sectors passed + 2: 25608
+Ending Cluster Address of File: 2704
+
+File 27:
+Starting address: 15041536
+Starting sector: 28306
+Cluster address = Sectors passed + 2: 28308
+Ending Cluster Address of File: 948
+
+File 28:
+Starting address: 15524864
+Starting sector: 29250
+Cluster address = Sectors passed + 2: 29252
+Ending Cluster Address of File: 385
+
+File 29:
+Starting address: 15719936
+Starting sector: 29631
+Cluster address = Sectors passed + 2: 29633
+Ending Cluster Address of File: 262
+
+File 30:
+Starting address: 15852032
+Starting sector: 29889
+Cluster address = Sectors passed + 2: 29891
+Ending Cluster Address of File: 1120
+
+File 31:
+Starting address: 16423424
+Starting sector: 31005
+Cluster address = Sectors passed + 2: 31007
+Ending Cluster Address of File: 845
+
+File 32:
+Starting address: 16854016
+Starting sector: 31846
+Cluster address = Sectors passed + 2: 31848
+Ending Cluster Address of File: 256
+
+File 33:
+Starting address: 16983040
+Starting sector: 32098
+Cluster address = Sectors passed + 2: 32100
+Ending Cluster Address of File: 1532
+
+File 34:
+Starting address: 17765376
+Starting sector: 33626
+Cluster address = Sectors passed + 2: 33628
+Ending Cluster Address of File: 1171
+
+File 35:
+Starting address: 18362880
+Starting sector: 34793
+Cluster address = Sectors passed + 2: 34795
+Ending Cluster Address of File: 753
+
+File 36:
+Starting address: 18746368
+Starting sector: 35542
+Cluster address = Sectors passed + 2: 35544
+Ending Cluster Address of File: 280
+
+File 37:
+Starting address: 18887680
+Starting sector: 35818
+Cluster address = Sectors passed + 2: 35820
+Ending Cluster Address of File: 532
+
+File 38:
+Starting address: 19158528
+Starting sector: 36347
+Cluster address = Sectors passed + 2: 36349
+Ending Cluster Address of File: 858
+
+File 39:
+Starting address: 19595776
+Starting sector: 37201
+Cluster address = Sectors passed + 2: 37203
+Ending Cluster Address of File: 4654
+
+File 40:
+Starting address: 21976576
+Starting sector: 41851
+Cluster address = Sectors passed + 2: 41853
+Ending Cluster Address of File: 1764
+
+File 41:
+Starting address: 22877696
+Starting sector: 43611
+Cluster address = Sectors passed + 2: 43613
+Ending Cluster Address of File: 2296
+
+File 42:
+Starting address: 24051200
+Starting sector: 45903
+Cluster address = Sectors passed + 2: 45905
+Ending Cluster Address of File: 1998
+
+File 43:
+Starting address: 25072128
+Starting sector: 47897
+Cluster address = Sectors passed + 2: 47899
+Ending Cluster Address of File: 236

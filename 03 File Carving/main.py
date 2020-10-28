@@ -51,21 +51,29 @@ def method1():
 #                    HOMEWORK 4
 ###########################################################################
 
+    # go to the start of the data area
     # 1072 * 512
     cur = dataSectionAddr * bytesPerSector
-    counter = 0
-    addresses_of_beginnings = []
 
+    filesCounter = 0
+    addresses_of_beginnings = []
+    sectorsCounter = 0
+    number_of_sectors = []
+
+    # checking for all FFD8FF tags in the drive
+    # first 3 bytes in each sector
+    # if not, go to the next sector and check its first 3 bytes and so on...
     while cur+3 <= len(hex_list):
         firstThreeBytes = hex_list[cur]+hex_list[cur+1]+hex_list[cur+2]
         if firstThreeBytes == "ffd8ff":
             addresses_of_beginnings.append(cur)
-            counter += 1
+            number_of_sectors.append(sectorsCounter)
+            filesCounter += 1
             cur += 512
         else:
             cur += 512
+        sectorsCounter += 1
     
-    print "Number of beginnings found: {}".format(counter)
     print "Bytes/Sector: {}".format(bytesPerSector)
     print "Sectors/Cluster: {}".format(sectorsPerCluster)
     print "Size of Reserved Area in Sectors: {}".format(reservedAreaSize)
@@ -74,76 +82,79 @@ def method1():
     print "Sectors/FAT: {}".format(sectorsPerFAT)
     print "Cluster Address of Root Directory: {}".format(clusterAddrRoot)
     print "Starting Sector Address of the Data Section: {}".format(dataSectionAddr)
+    print "\nNumber of \"FFD8FF\" tags found: {}".format(filesCounter)
 
-#           COMMENTED EVERYTHING BELOW TO FOCUS ON HOMEWORK 4
-###########################################################################
+    for i in range(len(addresses_of_beginnings)):
+        print "\nFile {}:".format(i+1)
+        print "Starting address: {}".format(addresses_of_beginnings[i])
+        print "Starting sector: {}".format(number_of_sectors[i])
+        # cluster address is the amount of sectors we went through + 2
+        curClusterNum = number_of_sectors[i] + 2
+        print "Cluster address = Sectors passed + 2: {}".format(curClusterNum)
 
-    # # THE FUN STARTS HERE
 
-    # # go to root's first entry
-    # cluster = (dataSectionAddr * bytesPerSector) + 32
-    # cur = cluster
-    # # get cluster address of directory entry
-    # # given by bytes 20-21 + 26-27 (in little endian)
-    # dirEntryAddr = int(hex_list[cur+21]+hex_list[cur+20]+hex_list[cur+27]+hex_list[cur+26], 16)
+
+##########################################################################################
+# UNINDENTED LINES WERE COMMENTED FROM THE PREVIOUS HOMEWORK IN CASE WE CAN REUSE IT
+##########################################################################################
+
+# # THE FUN STARTS HERE
+
+# # go to root's first entry
+# cluster = (dataSectionAddr * bytesPerSector) + 32
+# cur = cluster
+# # get cluster address of directory entry
+# # given by bytes 20-21 + 26-27 (in little endian)
+# dirEntryAddr = int(hex_list[cur+21]+hex_list[cur+20]+hex_list[cur+27]+hex_list[cur+26], 16)
+
+# # contiguous, so next cluster is 512 down
+# cluster += 512
+# cur = cluster
+
+
+# # get cluster address of file data
+# # given by bytes 20-21 + 26-27 (in little endian)
+# fileEntryAddr = int(hex_list[cur+21]+hex_list[cur+20]+hex_list[cur+27]+hex_list[cur+26], 16)
+
+# # get size of this file
+# # given by bytes 28-31
+# sizeOfFile = int(hex_list[cur+31]+hex_list[cur+30]+hex_list[cur+29]+hex_list[cur+28], 16)
     
-    # # contiguous, so next cluster is 512 down
-    # cluster += 512
-    # cur = cluster
+        # # (starting sector on FAT section) * (byte offset from bytes per sector)
+        fatTable = startAddress * bytesPerSector
 
+        #############################################################
+        #   offset was the only change in this part for homework 4
+        #############################################################
+        # go to the first file entry in the FAT table (FILE'S STARTING CLUSTER * 4)
+        offset = fatTable + (curClusterNum * 4)
 
-    # while cur < cluster * 2:
-    #     if hex_list[cur] == "00":
-    #         print "\nFile not found, exiting...\n"
-    #         exit()
+        counter = 0
 
-    #     # translating first 3 bytes
-    #     fileName = hex_list[cur]+hex_list[cur+1]+hex_list[cur+2]
-    #     fileName = fileName.decode("hex")
+        # IF 0s IN CLUSTER, FILE WAS DELETED OR OVERWRITTEN. MOVE ON TO THE NEXT FILE IF THAT"S THE CASE!!!!!!
+        curCluster = hex_list[offset+3]+hex_list[offset+2]+hex_list[offset+1]+hex_list[offset]
+        if curCluster == "00000000":
+            print "File {} deleted/overwritten".format(i+1)
+            continue
 
-    #     # "is the directory name" a substring of those 8 bytes?
-    #     if fileName:
-    #         cur += 512
-    #     else:
-    #         # if it is, we found it. proceed...
-    #         break
+        cluster_addr_list = [curCluster]
+        
+        # if offset is not on an EOF, it gives you the next cluster address in the chain (in little endian)
+        while curCluster != "0fffffff":
+            offset = fatTable + (int(curCluster, 16) * 4)   # jump to the next address pointed by the table
+            curCluster = hex_list[offset+3]+hex_list[offset+2]+hex_list[offset+1]+hex_list[offset]
+            cluster_addr_list.append(curCluster)
+            counter += 1
+        
+        # now "counter" has the amount of clusters.
+        # each cluster has an offset of 4
+        # therefore, ending cluster address of file is:
+        endClusterAddr = counter + 4 + 1
 
-    # # get cluster address of file data
-    # # given by bytes 20-21 + 26-27 (in little endian)
-    # fileEntryAddr = int(hex_list[cur+21]+hex_list[cur+20]+hex_list[cur+27]+hex_list[cur+26], 16)
-
-    # # get size of this file
-    # # given by bytes 28-31
-    # sizeOfFile = int(hex_list[cur+31]+hex_list[cur+30]+hex_list[cur+29]+hex_list[cur+28], 16)
-    
-    # # (starting sector on FAT section) * (byte offset from bytes per sector)
-    # fatTable = startAddress * bytesPerSector
-
-    # # go to the first file entry in the FAT table (starting file address * 4)
-    # offset = fatTable + (fileEntryAddr * 4)
-
-    # # keeping a count of cluster addresses, as well as a list of those addresses
-    # # for possible future reference (as recommended by the instructor)
-    # counter = 0
-    # curCluster = hex_list[offset+3]+hex_list[offset+2]+hex_list[offset+1]+hex_list[offset]
-    # cluster_addr_list = [curCluster]
-    
-    # # if offset is not on an EOF, it gives you the next cluster address in the chain (in little endian)
-    # while curCluster != "0fffffff":
-    #     offset = fatTable + (int(curCluster, 16) * 4)   # jump to the next address pointed by the table
-    #     curCluster = hex_list[offset+3]+hex_list[offset+2]+hex_list[offset+1]+hex_list[offset]
-    #     cluster_addr_list.append(curCluster)
-    #     counter += 1
-    
-    # # now "counter" has the amount of clusters.
-    # # each cluster has an offset of 4
-    # # therefore, ending cluster address of file is:
-    # endClusterAddr = counter + 4 + 1
-
-    # print "Cluster Address of Directory Entry: {}".format(dirEntryAddr)
-    # print "Cluster Address of File Data: {}".format(fileEntryAddr)
-    # print "Size of File in Bytes: {}".format(sizeOfFile)
-    # print "Ending Cluster Address of File: {}".format(endClusterAddr)
+# print "Cluster Address of Directory Entry: {}".format(dirEntryAddr)
+# print "Cluster Address of File Data: {}".format(fileEntryAddr)
+# print "Size of File in Bytes: {}".format(sizeOfFile)
+        print "Ending Cluster Address of File: {}".format(endClusterAddr)
 
 
 # -------------------------------------------------------------------------- #
@@ -155,7 +166,7 @@ if len(sys.argv) < 2:
 
 # assigning constants
 mode = sys.argv[1]
-if mode == "-f":
+if mode == "-m1" or mode == "-m2":
     FILE_DIR = 'FAT_Corrupted.iso'
     CHECKSUM = "0f67d2b58b4ec406dcb09fd4542d55a6e0151cc06cc5925d710068b4d2b9a3f1"
 elif mode == "-h":
@@ -179,4 +190,7 @@ if isoHash != CHECKSUM:
 # entering .iso hex contents into a list
 hex_list = ["{:02x}".format(ord(c)) for c in isoFile]
 
-method1()
+if mode == "-m1":
+    method1()
+else:
+    pass
