@@ -84,6 +84,8 @@ def method1():
     print "Starting Sector Address of the Data Section: {}".format(dataSectionAddr)
     print "\nNumber of \"FFD8FF\" tags found: {}".format(filesCounter)
 
+    deleted_files = []
+
     for i in range(len(addresses_of_beginnings)):
         print "\nFile {}:".format(i+1)
         print "Starting address: {}".format(addresses_of_beginnings[i])
@@ -135,6 +137,7 @@ def method1():
         curCluster = hex_list[offset+3]+hex_list[offset+2]+hex_list[offset+1]+hex_list[offset]
         if curCluster == "00000000":
             print "File {} deleted/overwritten".format(i+1)
+            deleted_files.append(i+1)
             continue
 
         cluster_addr_list = [curCluster]
@@ -155,6 +158,74 @@ def method1():
 # print "Cluster Address of File Data: {}".format(fileEntryAddr)
 # print "Size of File in Bytes: {}".format(sizeOfFile)
         print "Ending Cluster Address of File: {}".format(endClusterAddr)
+
+def method2():
+    # 2a. start in the data section
+    # dataSectionAddr = (sectorsPerFAT * numOfFats) + reservedAreaSize
+    # dataSectionAddr = (520 * 2) + 32
+    dataSectionAddr = 1072
+
+    # cur = dataSectionAddr * bytesPerSector
+    cur = dataSectionAddr * 512
+
+    # 2b. pretend the FAT doesn't exist.
+    # grab file using contiguous search
+    # find "ffd8ff" tag. then go byte by byte looking for "ffd9"
+    # if another "ffd8ff" tag found before a "ffd9",
+    # ignore the first "ffd8ff" and start over the search for an ffg from the new one
+
+    addresses_of_beginnings = []
+    addresses_of_endings = []
+    sectorsCounter = 0
+    number_of_sectors = []
+
+    # first find "ffd8ff" tag, then look for "ffd9"
+    # first 3 bytes in each sector
+    # if not, go to the next sector and check its first 3 bytes and so on...
+    while cur+3 <= len(hex_list):
+        firstThreeBytes = hex_list[cur]+hex_list[cur+1]+hex_list[cur+2]
+        if firstThreeBytes == "ffd8ff":
+            addresses_of_beginnings.append(cur)
+            number_of_sectors.append(sectorsCounter)
+
+            while cur+6 < len(hex_list):
+                # now look for either an "ffd8ff" or "ffd9" tag byte by byte
+                nextThreeBytes = hex_list[cur+3]+hex_list[cur+4]+hex_list[cur+5]
+                if nextThreeBytes == "ffd8ff":
+                    cur = cur + 3   # point to where the new three bytes started
+
+                elif "ffd9" in nextThreeBytes:
+                    # found EOF
+                    # we have 3 bytes, figure out which 2 are ffd9
+                    if hex_list[cur+3]+hex_list[cur+4] == "ffd9":
+                        addresses_of_endings.append(cur+3)
+                    else:   # hex_list[cur+4]+hex_list[cur+5] == "ffd9"
+                        addresses_of_endings.append(cur+4)
+                    break
+
+                # if nothing found, increment byte to check by one
+                cur += 1
+            
+            # adapt pointer to point to next sector
+            while cur % 512 != 0:
+                cur += 1
+
+        # not found in this sector, check next one
+        else:
+            cur += 512
+        
+        # increment how many sectors we have traversed through
+        sectorsCounter += 1
+
+    for i in range(len(addresses_of_beginnings)):
+        print "File found # {}:".format(i+1)
+        print "Starting address: {}".format(addresses_of_beginnings[i])
+        print "Ending address: {}".format(addresses_of_endings[i])
+
+        f = open("picture{}.jpg".format(i+1), "w")
+        f.write(isoFile[addresses_of_beginnings[i]:addresses_of_endings[i]])
+        f.close()
+
 
 
 # -------------------------------------------------------------------------- #
@@ -192,5 +263,5 @@ hex_list = ["{:02x}".format(ord(c)) for c in isoFile]
 
 if mode == "-m1":
     method1()
-else:
-    pass
+elif mode == "-m2":
+    method2()
