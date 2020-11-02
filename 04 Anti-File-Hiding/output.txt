@@ -1,0 +1,15 @@
+Bytes/Sector: 512
+Sectors/Cluster: 1
+Size of Reserved Area in Sectors: 32
+Start Address of 1st FAT: 32
+# of FATs: 2
+Sectors/FAT: 520
+Cluster Address of Root Directory: 2
+Starting Sector Address of the Data Section: 1072
+
+File 1:
+Starting address: 2541056
+Starting sector: 3891
+Cluster address = Sectors passed + 2: 3893
+Ending Cluster Address of File: 494
+File format: JFIF
