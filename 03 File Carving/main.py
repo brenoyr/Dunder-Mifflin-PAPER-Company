@@ -148,6 +148,16 @@ def method1():
             curCluster = hex_list[offset+3]+hex_list[offset+2]+hex_list[offset+1]+hex_list[offset]
             cluster_addr_list.append(curCluster)
             counter += 1
+
+        f = open("picture{}.jpg".format(i+1), "w")
+        startClusterDecimal = (dataSectionAddr * bytesPerSector) + (number_of_sectors[i] * bytesPerSector)
+        f.write(isoFile[startClusterDecimal:startClusterDecimal+512])
+        for c in cluster_addr_list:
+            clusterAddrDecimal = int(c, 16)
+            # a = (start of data section * bytes per sector) + (cluster * bytes per sector)
+            a = (dataSectionAddr * bytesPerSector) + (clusterAddrDecimal * bytesPerSector)
+            f.write(isoFile[a:a+512])
+        f.close()
         
         # now "counter" has the amount of clusters.
         # each cluster has an offset of 4
