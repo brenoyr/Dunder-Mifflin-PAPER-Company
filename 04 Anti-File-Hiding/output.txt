@@ -11,5 +11,5 @@ File 1:
 Starting address: 2541056
 Starting sector: 3891
 Cluster address = Sectors passed + 2: 3893
-Ending Cluster Address of File: 494
+Ending Cluster Address of File: 4382
 File format: JFIF

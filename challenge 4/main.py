@@ -2,8 +2,8 @@
 #   Names:      Breno Yamada Riquieri                   #
 #               Alexandra Duran Chicas                  #
 #   Class:      CSC443 - Digital Forensics              #
-#   Asgmt:      File Carving                            #
-#   Due Date:   10/28/2020                              #
+#   Asgmt:      Anti-File Hiding                        #
+#   Due Date:   11/02/2020                              #
 #   Comments:   Python 2.7.17                           #
 #               Ubuntu 18.04.5 LTS                      #
 #########################################################
@@ -47,9 +47,6 @@ def method1():
     # (size in sectors of each fat)(# of fats) + # of sectors in reserved area
     dataSectionAddr = (sectorsPerFAT * numOfFats) + reservedAreaSize
 
-###########################################################################
-#                    HOMEWORK 3
-###########################################################################
 
     # go to the start of the data area
     # 1072 * 512
@@ -64,8 +61,19 @@ def method1():
     # first 3 bytes in each sector
     # if not, go to the next sector and check its first 3 bytes and so on...
     while cur+3 <= len(hex_list):
+        #######################################################
+        #                   HOMEWORK 4
+        #######################################################
         firstThreeBytes = hex_list[cur]+hex_list[cur+1]+hex_list[cur+2]
-        if firstThreeBytes == "ffd8ff":
+        fileFormatBytes = hex_list[cur+6]+hex_list[cur+7]+hex_list[cur+8]+hex_list[cur+9]
+        if fileFormatBytes == "4a464946":
+            fileFormat = "JFIF"
+            addresses_of_beginnings.append(cur)
+            number_of_sectors.append(sectorsCounter)
+            filesCounter += 1
+            cur += 512
+        elif fileFormatBytes == "45786966":
+            fileFormat = "EXIF"
             addresses_of_beginnings.append(cur)
             number_of_sectors.append(sectorsCounter)
             filesCounter += 1
@@ -82,7 +90,6 @@ def method1():
     print "Sectors/FAT: {}".format(sectorsPerFAT)
     print "Cluster Address of Root Directory: {}".format(clusterAddrRoot)
     print "Starting Sector Address of the Data Section: {}".format(dataSectionAddr)
-    print "\nNumber of \"FFD8FF\" tags found: {}".format(filesCounter)
 
     deleted_files = []
 
@@ -125,9 +132,6 @@ def method1():
         # # (starting sector on FAT section) * (byte offset from bytes per sector)
         fatTable = startAddress * bytesPerSector
 
-        #############################################################
-        #   offset was the only change in this part for homework 3
-        #############################################################
         # go to the first file entry in the FAT table (FILE'S STARTING CLUSTER * 4)
         offset = fatTable + (curClusterNum * 4)
 
@@ -149,8 +153,10 @@ def method1():
             cluster_addr_list.append(curCluster)
             counter += 1
 
-        # ending cluster address is what the second to last cluster in the cluster chain points to
-        endClusterAddr = int(cluster_addr_list[-2],16)
+        # now "counter" has the amount of clusters.
+        # each cluster has an offset of 4
+        # therefore, ending cluster address of file is:
+        endClusterAddr = counter + 4 + 1
 
         #########################################################################################################
         #                                           IMPORTANT!!!!!!
@@ -163,7 +169,7 @@ def method1():
         # performing a string search for the JPG's file signature, one sector at a time (starting
         # at the beginning of the drive).
         #########################################################################################################
-
+        
         f = open("picture{}.jpg".format(i+1), "w")
         startClusterDecimal = (dataSectionAddr * bytesPerSector) + (number_of_sectors[i] * bytesPerSector)
         f.write(isoFile[startClusterDecimal:startClusterDecimal+512])
@@ -178,6 +184,7 @@ def method1():
 # print "Cluster Address of File Data: {}".format(fileEntryAddr)
 # print "Size of File in Bytes: {}".format(sizeOfFile)
         print "Ending Cluster Address of File: {}".format(endClusterAddr)
+        print "File format: {}".format(fileFormat)
 
 def method2():
     # 2a. start in the data section
@@ -243,7 +250,8 @@ def method2():
         print "Ending address: {}".format(addresses_of_endings[i])
 
         f = open("picture{}.jpg".format(i+1), "w")
-        f.write(isoFile[addresses_of_beginnings[i]:addresses_of_endings[i]])
+        # f.write(isoFile[addresses_of_beginnings[i]:addresses_of_endings[i]])
+        f.write(isoFile[addresses_of_beginnings[i]:addresses_of_endings[i]+2])
         f.close()
 
 
@@ -258,8 +266,8 @@ if len(sys.argv) < 2:
 # assigning constants
 mode = sys.argv[1]
 if mode == "-m1" or mode == "-m2":
-    FILE_DIR = 'FAT_Corrupted.iso'
-    CHECKSUM = "0f67d2b58b4ec406dcb09fd4542d55a6e0151cc06cc5925d710068b4d2b9a3f1"
+    FILE_DIR = 'FAT_Hidden.iso'
+    CHECKSUM = "ab213976267986089414a7ab93c6652dc6f88b3f9c6955fe76e292598464bb58"
 elif mode == "-h":
     print "\nFile carving from some info gathered from a .iso image that's present in the same directory as this .py file\n"
     print "For example, run \"python main.py -f\"\n"

@@ -55,27 +55,27 @@ def method1():
     filesCounter = 0
     addresses_of_beginnings = []
     sectorsCounter = 0
-    number_of_sectors = []
+    files_first_cluster = []  # this holds how many sectors we went down the partition until we got to a ffd8ff
 
     # checking for all FFD8FF tags in the drive
     # first 3 bytes in each sector
     # if not, go to the next sector and check its first 3 bytes and so on...
     while cur+3 <= len(hex_list):
         #######################################################
-        #                   HOMEWORK 5
+        #                   HOMEWORK 4
         #######################################################
         firstThreeBytes = hex_list[cur]+hex_list[cur+1]+hex_list[cur+2]
         fileFormatBytes = hex_list[cur+6]+hex_list[cur+7]+hex_list[cur+8]+hex_list[cur+9]
         if firstThreeBytes == "ffd8ff" and fileFormatBytes == "4a464946":
             fileFormat = "JFIF"
             addresses_of_beginnings.append(cur)
-            number_of_sectors.append(sectorsCounter)
+            files_first_cluster.append(sectorsCounter)
             filesCounter += 1
             cur += 512
         elif firstThreeBytes == "ffd8ff" and fileFormatBytes == "45786966":
             fileFormat = "EXIF"
             addresses_of_beginnings.append(cur)
-            number_of_sectors.append(sectorsCounter)
+            files_first_cluster.append(sectorsCounter)
             filesCounter += 1
             cur += 512
         else:
@@ -96,9 +96,9 @@ def method1():
     for i in range(len(addresses_of_beginnings)):
         print "\nFile {}:".format(i+1)
         print "Starting address: {}".format(addresses_of_beginnings[i])
-        print "Starting sector: {}".format(number_of_sectors[i])
+        print "Starting sector: {}".format(files_first_cluster[i])
         # cluster address is the amount of sectors we went through + 2
-        curClusterNum = number_of_sectors[i] + 2
+        curClusterNum = files_first_cluster[i] + 2
         print "Cluster address = Sectors passed + 2: {}".format(curClusterNum)
 
 
@@ -135,8 +135,6 @@ def method1():
         # go to the first file entry in the FAT table (FILE'S STARTING CLUSTER * 4)
         offset = fatTable + (curClusterNum * 4)
 
-        counter = 0
-
         # IF 0s IN CLUSTER, FILE WAS DELETED OR OVERWRITTEN. MOVE ON TO THE NEXT FILE IF THAT"S THE CASE!!!!!!
         curCluster = hex_list[offset+3]+hex_list[offset+2]+hex_list[offset+1]+hex_list[offset]
         if curCluster == "00000000":
@@ -151,26 +149,35 @@ def method1():
             offset = fatTable + (int(curCluster, 16) * 4)   # jump to the next address pointed by the table
             curCluster = hex_list[offset+3]+hex_list[offset+2]+hex_list[offset+1]+hex_list[offset]
             cluster_addr_list.append(curCluster)
-            counter += 1
+        
+
+        # ending cluster address is what the second to last cluster in the cluster chain points to
+        endClusterAddr = int(cluster_addr_list[-2],16)
+
+        #########################################################################################################
+        #                                           IMPORTANT!!!!!!
+        #
+        # Cluster_addr_list holds the cluster chain. This cluster chain addresses has to be subtracted by 2.
+        # the reason is that we have account for the 2 initial cluster in the drive.
+        #
+        # On the other hand, the first cluster is given by files_first_cluster[]. The values in that list
+        # are more faithful to what the cluster address actually is. That's because it was adquired when 
+        # performing a string search for the JPG's file signature, one sector at a time (starting
+        # at the beginning of the drive).
+        #########################################################################################################
 
         f = open("picture{}.jpg".format(i+1), "w")
-        startClusterDecimal = (dataSectionAddr * bytesPerSector) + (number_of_sectors[i] * bytesPerSector)
+        # example in homework 4:
+        # startClusterDecimal = (1072 * 512) + (3891 * 512)
+        startClusterDecimal = (dataSectionAddr * bytesPerSector) + (files_first_cluster[i] * bytesPerSector)
         f.write(isoFile[startClusterDecimal:startClusterDecimal+512])
         for c in cluster_addr_list:
             clusterAddrDecimal = int(c, 16)
             # a = (start of data section * bytes per sector) + (cluster * bytes per sector)
-            a = (dataSectionAddr * bytesPerSector) + (clusterAddrDecimal * bytesPerSector)
+            a = (dataSectionAddr * bytesPerSector) + ((clusterAddrDecimal-2) * bytesPerSector)
             f.write(isoFile[a:a+512])
         f.close()
-        
-        # now "counter" has the amount of clusters.
-        # each cluster has an offset of 4
-        # therefore, ending cluster address of file is:
-        endClusterAddr = counter + 4 + 1
 
-# print "Cluster Address of Directory Entry: {}".format(dirEntryAddr)
-# print "Cluster Address of File Data: {}".format(fileEntryAddr)
-# print "Size of File in Bytes: {}".format(sizeOfFile)
         print "Ending Cluster Address of File: {}".format(endClusterAddr)
         print "File format: {}".format(fileFormat)
 
@@ -192,7 +199,7 @@ def method2():
     addresses_of_beginnings = []
     addresses_of_endings = []
     sectorsCounter = 0
-    number_of_sectors = []
+    files_first_cluster = []
 
     # first find "ffd8ff" tag, then look for "ffd9"
     # first 3 bytes in each sector
@@ -201,7 +208,7 @@ def method2():
         firstThreeBytes = hex_list[cur]+hex_list[cur+1]+hex_list[cur+2]
         if firstThreeBytes == "ffd8ff":
             addresses_of_beginnings.append(cur)
-            number_of_sectors.append(sectorsCounter)
+            files_first_cluster.append(sectorsCounter)
 
             while cur+6 < len(hex_list):
                 # now look for either an "ffd8ff" or "ffd9" tag byte by byte
@@ -238,7 +245,8 @@ def method2():
         print "Ending address: {}".format(addresses_of_endings[i])
 
         f = open("picture{}.jpg".format(i+1), "w")
-        f.write(isoFile[addresses_of_beginnings[i]:addresses_of_endings[i]])
+        # f.write(isoFile[addresses_of_beginnings[i]:addresses_of_endings[i]])
+        f.write(isoFile[addresses_of_beginnings[i]:addresses_of_endings[i]+2])
         f.close()
 
 

@@ -48,7 +48,7 @@ def method1():
     dataSectionAddr = (sectorsPerFAT * numOfFats) + reservedAreaSize
 
 ###########################################################################
-#                    HOMEWORK 3
+#                    HOMEWORK 4
 ###########################################################################
 
     # go to the start of the data area
@@ -64,8 +64,8 @@ def method1():
     # first 3 bytes in each sector
     # if not, go to the next sector and check its first 3 bytes and so on...
     while cur+3 <= len(hex_list):
-        firstThreeBytes = hex_list[cur]+hex_list[cur+1]+hex_list[cur+2]
-        if firstThreeBytes == "ffd8ff":
+        firstThreeBytes = hex_list[cur]+hex_list[cur+1]+hex_list[cur+2]+hex_list[cur+3]
+        if firstThreeBytes == "47494638":
             addresses_of_beginnings.append(cur)
             number_of_sectors.append(sectorsCounter)
             filesCounter += 1
@@ -126,7 +126,7 @@ def method1():
         fatTable = startAddress * bytesPerSector
 
         #############################################################
-        #   offset was the only change in this part for homework 3
+        #   offset was the only change in this part for homework 4
         #############################################################
         # go to the first file entry in the FAT table (FILE'S STARTING CLUSTER * 4)
         offset = fatTable + (curClusterNum * 4)
@@ -148,31 +148,11 @@ def method1():
             curCluster = hex_list[offset+3]+hex_list[offset+2]+hex_list[offset+1]+hex_list[offset]
             cluster_addr_list.append(curCluster)
             counter += 1
-
-        # ending cluster address is what the second to last cluster in the cluster chain points to
-        endClusterAddr = int(cluster_addr_list[-2],16)
-
-        #########################################################################################################
-        #                                           IMPORTANT!!!!!!
-        #
-        # Cluster_addr_list holds the cluster chain. This cluster chain addresses has to be subtracted by 2.
-        # the reason is that we have account for the 2 initial cluster in the drive.
-        #
-        # On the other hand, the first cluster is given by files_first_cluster[]. The values in that list
-        # are more faithful to what the cluster address actually is. That's because it was adquired when 
-        # performing a string search for the JPG's file signature, one sector at a time (starting
-        # at the beginning of the drive).
-        #########################################################################################################
-
-        f = open("picture{}.jpg".format(i+1), "w")
-        startClusterDecimal = (dataSectionAddr * bytesPerSector) + (number_of_sectors[i] * bytesPerSector)
-        f.write(isoFile[startClusterDecimal:startClusterDecimal+512])
-        for c in cluster_addr_list:
-            clusterAddrDecimal = int(c, 16)
-            # a = (start of data section * bytes per sector) + (cluster * bytes per sector)
-            a = (dataSectionAddr * bytesPerSector) + ((clusterAddrDecimal-2) * bytesPerSector)
-            f.write(isoFile[a:a+512])
-        f.close()
+        
+        # now "counter" has the amount of clusters.
+        # each cluster has an offset of 4
+        # therefore, ending cluster address of file is:
+        endClusterAddr = counter + 4 + 1
 
 # print "Cluster Address of Directory Entry: {}".format(dirEntryAddr)
 # print "Cluster Address of File Data: {}".format(fileEntryAddr)
@@ -202,14 +182,16 @@ def method2():
     # first find "ffd8ff" tag, then look for "ffd9"
     # first 3 bytes in each sector
     # if not, go to the next sector and check its first 3 bytes and so on...
-    while cur+3 <= len(hex_list):
+    while cur+7 <= len(hex_list):
+        # firstThreeBytes = hex_list[cur]+hex_list[cur+1]+hex_list[cur+2]+hex_list[cur+3]+hex_list[cur+4]+hex_list[cur+5]
         firstThreeBytes = hex_list[cur]+hex_list[cur+1]+hex_list[cur+2]
-        if firstThreeBytes == "ffd8ff":
+        if firstThreeBytes == "":
             addresses_of_beginnings.append(cur)
             number_of_sectors.append(sectorsCounter)
 
             while cur+6 < len(hex_list):
                 # now look for either an "ffd8ff" or "ffd9" tag byte by byte
+                # nextThreeBytes = hex_list[cur+6]+hex_list[cur+7]+hex_list[cur+8]+hex_list[cur+9]+hex_list[cur+10]+hex_list[cur+11]
                 nextThreeBytes = hex_list[cur+3]+hex_list[cur+4]+hex_list[cur+5]
                 if nextThreeBytes == "ffd8ff":
                     cur = cur + 3   # point to where the new three bytes started
@@ -245,6 +227,8 @@ def method2():
         f = open("picture{}.jpg".format(i+1), "w")
         f.write(isoFile[addresses_of_beginnings[i]:addresses_of_endings[i]])
         f.close()
+    
+
 
 
 
@@ -258,8 +242,8 @@ if len(sys.argv) < 2:
 # assigning constants
 mode = sys.argv[1]
 if mode == "-m1" or mode == "-m2":
-    FILE_DIR = 'FAT_Corrupted.iso'
-    CHECKSUM = "0f67d2b58b4ec406dcb09fd4542d55a6e0151cc06cc5925d710068b4d2b9a3f1"
+    FILE_DIR = 'Challenge_3_Corrupted.iso'
+    CHECKSUM = "445badd858dad04907af1656b4e0110a0e5644f33fff8db7488dda0253c51587"
 elif mode == "-h":
     print "\nFile carving from some info gathered from a .iso image that's present in the same directory as this .py file\n"
     print "For example, run \"python main.py -f\"\n"
@@ -281,7 +265,17 @@ if isoHash != CHECKSUM:
 # entering .iso hex contents into a list
 hex_list = ["{:02x}".format(ord(c)) for c in isoFile]
 
+
 if mode == "-m1":
     method1()
 elif mode == "-m2":
     method2()
+
+# j = 1
+
+# for i in range(j):
+#     picture = "picture{}.jpg".format(i+1)    
+#     with open(picture, 'r') as f:
+#         picture = f.read()
+#         print sha256(picture).hexdigest()
+#         # 08c29b53842f41ccbc8f88ae6d5fcc2061d75d4b2faae80b5ebdfd3131ce1d44

@@ -1,0 +1,85 @@
+Bytes/Sector: 512
+Sectors/Cluster: 1
+Size of Reserved Area in Sectors: 32
+Start Address of 1st FAT: 32
+# of FATs: 2
+Sectors/FAT: 520
+Cluster Address of Root Directory: 2
+Starting Sector Address of the Data Section: 1072
+
+File 1:
+Starting address: 550400
+Starting sector: 3
+Cluster address = Sectors passed + 2: 5
+Ending Cluster Address of File: 68
+File format: JFIF
+
+File 2:
+Starting address: 583168
+Starting sector: 67
+Cluster address = Sectors passed + 2: 69
+Ending Cluster Address of File: 117
+File format: JFIF
+
+File 3:
+Starting address: 641024
+Starting sector: 180
+Cluster address = Sectors passed + 2: 182
+Ending Cluster Address of File: 244
+File format: JFIF
+
+File 4:
+Starting address: 770560
+Starting sector: 433
+Cluster address = Sectors passed + 2: 435
+Ending Cluster Address of File: 259
+File format: JFIF
+
+File 5:
+Starting address: 901120
+Starting sector: 688
+Cluster address = Sectors passed + 2: 690
+Ending Cluster Address of File: 108
+File format: JFIF
+
+File 6:
+Starting address: 954880
+Starting sector: 793
+Cluster address = Sectors passed + 2: 795
+Ending Cluster Address of File: 111
+File format: JFIF
+
+File 7:
+Starting address: 1009664
+Starting sector: 900
+Cluster address = Sectors passed + 2: 902
+Ending Cluster Address of File: 3630
+File format: JFIF
+
+File 8:
+Starting address: 2866176
+Starting sector: 4526
+Cluster address = Sectors passed + 2: 4528
+Ending Cluster Address of File: 993
+File format: JFIF
+
+File 9:
+Starting address: 3372544
+Starting sector: 5515
+Cluster address = Sectors passed + 2: 5517
+Ending Cluster Address of File: 230
+File format: JFIF
+
+File 10:
+Starting address: 3488256
+Starting sector: 5741
+Cluster address = Sectors passed + 2: 5743
+Ending Cluster Address of File: 93
+File format: JFIF
+
+File 11:
+Starting address: 5154816
+Starting sector: 8996
+Cluster address = Sectors passed + 2: 8998
+Ending Cluster Address of File: 237
+File format: JFIF
