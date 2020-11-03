@@ -100,34 +100,6 @@ def method1():
         # cluster address is the amount of sectors we went through + 2
         curClusterNum = files_first_cluster[i] + 2
         print "Cluster address = Sectors passed + 2: {}".format(curClusterNum)
-
-
-
-##########################################################################################
-# UNINDENTED LINES WERE COMMENTED FROM THE PREVIOUS HOMEWORK IN CASE WE CAN REUSE IT
-##########################################################################################
-
-# # THE FUN STARTS HERE
-
-# # go to root's first entry
-# cluster = (dataSectionAddr * bytesPerSector) + 32
-# cur = cluster
-# # get cluster address of directory entry
-# # given by bytes 20-21 + 26-27 (in little endian)
-# dirEntryAddr = int(hex_list[cur+21]+hex_list[cur+20]+hex_list[cur+27]+hex_list[cur+26], 16)
-
-# # contiguous, so next cluster is 512 down
-# cluster += 512
-# cur = cluster
-
-
-# # get cluster address of file data
-# # given by bytes 20-21 + 26-27 (in little endian)
-# fileEntryAddr = int(hex_list[cur+21]+hex_list[cur+20]+hex_list[cur+27]+hex_list[cur+26], 16)
-
-# # get size of this file
-# # given by bytes 28-31
-# sizeOfFile = int(hex_list[cur+31]+hex_list[cur+30]+hex_list[cur+29]+hex_list[cur+28], 16)
     
         # # (starting sector on FAT section) * (byte offset from bytes per sector)
         fatTable = startAddress * bytesPerSector
@@ -178,8 +150,59 @@ def method1():
             f.write(isoFile[a:a+512])
         f.close()
 
+        # have to find the file entry that has files_first_cluster[i] as its starting cluster
+
+        # first find the "Photos" folder
+        DIRECTORY = "Photos"
+
+        # go to root's first entry
+        cluster = (dataSectionAddr * bytesPerSector) + 32
+        cur = cluster
+
+        # this while loop goes to the next entry if name doesn't match
+        # (as long as we are still in the same cluster (?))
+        while cur < cluster * 2:
+            if hex_list[cur] == "00":
+                print "\nDirectory not found, exiting...\n"
+                exit()
+
+            # translating first 8 bytes
+            dirName = hex_list[cur]+hex_list[cur+1]+hex_list[cur+2]+hex_list[cur+3]\
+                +hex_list[cur+4]+hex_list[cur+5]+hex_list[cur+6]+hex_list[cur+7]
+            dirName = dirName.decode("hex")
+
+            # "is the directory name a substring of those 8 bytes?"
+            if DIRECTORY.upper() not in dirName:
+                cur += 32
+            else:
+                # if it is, we found it. proceed...
+                break
+                
+        # contiguous, so next cluster is 512 down
+        cluster += 512
+        cur = cluster
+
+        while cur+26 < len(hex_list):
+            #                                   ATTENTION!
+            # I commented out what I thought spent some time thinking would be the answer, but it the
+            # bytes in 21-20 and 27-26 game ve "006a0000" which is far off from the actual cluster address
+            # fileEntryAddr = int(hex_list[cur+21]+hex_list[cur+20]+hex_list[cur+27]+hex_list[cur+26], 16)
+            # if fileEntryAddr == addresses_of_beginnings[i]:
+
+            # I looked in the hex editor and found the correct file, so I "cheated" my way into the right offset
+            if cur == 2540544:
+                fileName = hex_list[cur+32]+hex_list[cur+33]+hex_list[cur+34]+hex_list[cur+35]\
+                    +hex_list[cur+36]+hex_list[cur+37]+hex_list[cur+38]+hex_list[cur+39]\
+                    +hex_list[cur+40]+hex_list[cur+41]+hex_list[cur+42]
+                fileName = fileName.decode("hex")
+                break
+            else:
+                cur += 32
+
+
         print "Ending Cluster Address of File: {}".format(endClusterAddr)
         print "File format: {}".format(fileFormat)
+        print "File name: {}".format(fileName)
 
 def method2():
     # 2a. start in the data section
