@@ -13,3 +13,4 @@ Starting sector: 3891
 Cluster address = Sectors passed + 2: 3893
 Ending Cluster Address of File: 4382
 File format: JFIF
+File name: COFFEE8 JPG

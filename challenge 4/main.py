@@ -2,7 +2,7 @@
 #   Names:      Breno Yamada Riquieri                   #
 #               Alexandra Duran Chicas                  #
 #   Class:      CSC443 - Digital Forensics              #
-#   Asgmt:      Anti-File Hiding                        #
+#   Asgmt:      Challenge 4	                        #
 #   Due Date:   11/02/2020                              #
 #   Comments:   Python 2.7.17                           #
 #               Ubuntu 18.04.5 LTS                      #
