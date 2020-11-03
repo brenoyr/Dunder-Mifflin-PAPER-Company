@@ -55,14 +55,14 @@ def method1():
     filesCounter = 0
     addresses_of_beginnings = []
     sectorsCounter = 0
-    number_of_sectors = []
+    number_of_sectors = []  # this holds how many sectors we went down the partition until we got to a ffd8ff
 
     # checking for all FFD8FF tags in the drive
     # first 3 bytes in each sector
     # if not, go to the next sector and check its first 3 bytes and so on...
     while cur+3 <= len(hex_list):
         #######################################################
-        #                   HOMEWORK 5
+        #                   HOMEWORK 4
         #######################################################
         firstThreeBytes = hex_list[cur]+hex_list[cur+1]+hex_list[cur+2]
         fileFormatBytes = hex_list[cur+6]+hex_list[cur+7]+hex_list[cur+8]+hex_list[cur+9]
@@ -131,9 +131,11 @@ def method1():
     
         # # (starting sector on FAT section) * (byte offset from bytes per sector)
         fatTable = startAddress * bytesPerSector
+        print fatTable
 
         # go to the first file entry in the FAT table (FILE'S STARTING CLUSTER * 4)
         offset = fatTable + (curClusterNum * 4)
+        print offset
 
         counter = 0
 
@@ -152,8 +154,19 @@ def method1():
             curCluster = hex_list[offset+3]+hex_list[offset+2]+hex_list[offset+1]+hex_list[offset]
             cluster_addr_list.append(curCluster)
             counter += 1
+        
+
+# now "counter" has the amount of clusters.
+# each cluster has an offset of 4
+# therefore, ending cluster address of file is:
+# endClusterAddr = counter + 4 + 1
+
+        # ending cluster address is what the second to last cluster in the cluster chain points to
+        endClusterAddr = int(cluster_addr_list[-2],16)
 
         f = open("picture{}.jpg".format(i+1), "w")
+        # example in homework 4:
+        # startClusterDecimal = (1072 * 512) + (3891 * 512)
         startClusterDecimal = (dataSectionAddr * bytesPerSector) + (number_of_sectors[i] * bytesPerSector)
         f.write(isoFile[startClusterDecimal:startClusterDecimal+512])
         for c in cluster_addr_list:
@@ -162,11 +175,6 @@ def method1():
             a = (dataSectionAddr * bytesPerSector) + (clusterAddrDecimal * bytesPerSector)
             f.write(isoFile[a:a+512])
         f.close()
-        
-        # now "counter" has the amount of clusters.
-        # each cluster has an offset of 4
-        # therefore, ending cluster address of file is:
-        endClusterAddr = counter + 4 + 1
 
 # print "Cluster Address of Directory Entry: {}".format(dirEntryAddr)
 # print "Cluster Address of File Data: {}".format(fileEntryAddr)
@@ -238,7 +246,8 @@ def method2():
         print "Ending address: {}".format(addresses_of_endings[i])
 
         f = open("picture{}.jpg".format(i+1), "w")
-        f.write(isoFile[addresses_of_beginnings[i]:addresses_of_endings[i]])
+        # f.write(isoFile[addresses_of_beginnings[i]:addresses_of_endings[i]])
+        f.write(isoFile[addresses_of_beginnings[i]:addresses_of_endings[i]+2])
         f.close()
 
 
